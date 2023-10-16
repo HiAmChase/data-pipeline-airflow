@@ -61,11 +61,11 @@ def transform_load_data(task_instance):
     now = datetime.now()
     dt_string = now.strftime("%d%m%Y%H%M%S")
     dt_string = f"weather_data_{CITY_NAME.lower()}_" + dt_string
-    with NamedTemporaryFile(mode="w", suffix="weather") as file:
-        df_data.to_csv(f"dags/{file}", index=False)
+    with NamedTemporaryFile(suffix=".csv", delete=False) as temp_file:
+        df_data.to_csv(temp_file.name, index=False)
         s3_hook = S3Hook(aws_conn_id="s3_conn")
         s3_hook.load_file(
-            filename=f"dags/{file}",
+            filename=temp_file.name,
             key=f"{dt_string}.csv",
             bucket_name=BUCKET_NAME,
             replace=True
