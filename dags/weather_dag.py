@@ -75,7 +75,6 @@ def transform_load_data(task_instance):
 with DAG(
     dag_id="weather_dag",
     default_args=default_args,
-    start_date=datetime(2023, 10, 15),
     schedule_interval="@daily",
     catchup=False
 ) as dag:
