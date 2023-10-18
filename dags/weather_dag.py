@@ -18,7 +18,7 @@ ENDPOINT = f"/data/2.5/weather?q={CITY_NAME}&appid={OPEN_WEATHER_API_KEY}"
 
 
 def kelvin_to_fahrenheit(temp_in_kelvin):
-    temp_in_fahrenheit = (temp_in_kelvin - 273.15) * (9/5) + 32
+    temp_in_fahrenheit = (temp_in_kelvin - 273.15) * (9 / 5) + 32
     return temp_in_fahrenheit
 
 
@@ -34,12 +34,8 @@ def transform_load_data(task_instance):
     humidity = data["main"]["humidity"]
     wind_speed = data["wind"]["speed"]
     time_of_record = datetime.utcfromtimestamp(data["dt"] + data["timezone"])
-    sunrise_time = datetime.utcfromtimestamp(
-        data["sys"]["sunrise"] + data["timezone"]
-    )
-    sunset_time = datetime.utcfromtimestamp(
-        data["sys"]["sunset"] + data["timezone"]
-    )
+    sunrise_time = datetime.utcfromtimestamp(data["sys"]["sunrise"] + data["timezone"])
+    sunset_time = datetime.utcfromtimestamp(data["sys"]["sunset"] + data["timezone"])
 
     transformed_data = {
         "City": city,
@@ -53,7 +49,7 @@ def transform_load_data(task_instance):
         "Wind Speed": wind_speed,
         "Time of Record": time_of_record,
         "Sunrise (Local Time)": sunrise_time,
-        "Sunset (Local Time)": sunset_time
+        "Sunset (Local Time)": sunset_time,
     }
     transformed_data_list = [transformed_data]
     df_data = pd.DataFrame(transformed_data_list)
@@ -68,7 +64,7 @@ def transform_load_data(task_instance):
             filename=temp_file.name,
             key=f"{dt_string}.csv",
             bucket_name=BUCKET_NAME,
-            replace=True
+            replace=True,
         )
 
 
@@ -76,12 +72,10 @@ with DAG(
     dag_id="weather_dag",
     default_args=default_args,
     schedule_interval="@daily",
-    catchup=False
+    catchup=False,
 ) as dag:
     is_weather_api_ready = HttpSensor(
-        task_id="is_weather_api_ready",
-        http_conn_id="weathermap_api",
-        endpoint=ENDPOINT
+        task_id="is_weather_api_ready", http_conn_id="weathermap_api", endpoint=ENDPOINT
     )
 
     extract_weather_data = SimpleHttpOperator(
@@ -90,12 +84,11 @@ with DAG(
         endpoint=ENDPOINT,
         method="GET",
         response_filter=lambda r: json.loads(r.text),
-        log_response=True
+        log_response=True,
     )
 
     transform_load_weather_data = PythonOperator(
-        task_id="transform_load_weather_data",
-        python_callable=transform_load_data
+        task_id="transform_load_weather_data", python_callable=transform_load_data
     )
 
     is_weather_api_ready >> extract_weather_data >> transform_load_weather_data
