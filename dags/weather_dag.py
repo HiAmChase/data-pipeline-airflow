@@ -11,10 +11,10 @@ from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 
 
 from args import default_args
-from config import OPEN_WEATHER_API_KEY, BUCKET_NAME
+import config
 
 CITY_NAME = "Hanoi"
-ENDPOINT = f"/data/2.5/weather?q={CITY_NAME}&appid={OPEN_WEATHER_API_KEY}"
+ENDPOINT = f"/data/2.5/weather?q={CITY_NAME}&appid={config.OPEN_WEATHER_API_KEY}"
 
 
 def kelvin_to_fahrenheit(temp_in_kelvin):
@@ -59,11 +59,11 @@ def transform_load_data(task_instance):
     dt_string = f"weather_data_{CITY_NAME.lower()}_" + dt_string
     with NamedTemporaryFile(suffix=".csv", delete=False) as temp_file:
         df_data.to_csv(temp_file.name, index=False)
-        s3_hook = S3Hook(aws_conn_id="s3_conn")
+        s3_hook = S3Hook(aws_conn_id=config.AWS_CONN_ID)
         s3_hook.load_file(
             filename=temp_file.name,
             key=f"{dt_string}.csv",
-            bucket_name=BUCKET_NAME,
+            bucket_name=config.BUCKET_NAME,
             replace=True,
         )
 
@@ -75,7 +75,9 @@ with DAG(
     catchup=False,
 ) as dag:
     is_weather_api_ready = HttpSensor(
-        task_id="is_weather_api_ready", http_conn_id="weathermap_api", endpoint=ENDPOINT
+        task_id="is_weather_api_ready",
+        http_conn_id=config.OPEN_WEATHER_HTTP_CONN_ID,
+        endpoint=ENDPOINT,
     )
 
     extract_weather_data = SimpleHttpOperator(
