@@ -67,7 +67,7 @@ def transform_load_data(task_instance):
         s3_hook.load_file(
             filename=temp_file.name,
             key=f"{dt_string}.csv",
-            bucket_name=config.BUCKET_NAME,
+            bucket_name=config.OPEN_WEATHER_BUCKET_NAME,
             replace=True,
         )
 
