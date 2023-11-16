@@ -1,6 +1,7 @@
 COMPOSE=docker compose
 AIRFLOW_INIT_SERVICE=airflow-init
 AIRFLOW_SERVICES=airflow-webserver airflow-triggerer airflow-scheduler
+
 init:
 	${COMPOSE} up ${AIRFLOW_INIT_SERVICE}
 

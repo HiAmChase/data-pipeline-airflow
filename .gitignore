@@ -2,3 +2,4 @@ dags/config.py
 __pycache__
 venv
 logs
+postgres-volume
