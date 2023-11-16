@@ -34,8 +34,12 @@ def transform_load_data(task_instance):
     humidity = data["main"]["humidity"]
     wind_speed = data["wind"]["speed"]
     time_of_record = datetime.utcfromtimestamp(data["dt"] + data["timezone"])
-    sunrise_time = datetime.utcfromtimestamp(data["sys"]["sunrise"] + data["timezone"])
-    sunset_time = datetime.utcfromtimestamp(data["sys"]["sunset"] + data["timezone"])
+
+    sunrise_timestamp = data["sys"]["sunrise"] + data["timezone"]
+    sunrise_time = datetime.utcfromtimestamp(sunrise_timestamp)
+
+    sunset_timestamp = data["sys"]["sunset"] + data["timezone"]
+    sunset_time = datetime.utcfromtimestamp(sunset_timestamp)
 
     transformed_data = {
         "City": city,
