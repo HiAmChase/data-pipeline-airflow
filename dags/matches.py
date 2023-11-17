@@ -12,6 +12,7 @@ from airflow.models import Variable
 
 import config
 from args import default_args
+from send_email import create_email_report_task
 
 LEAGUES = ["PL", "BL1"]
 ENDPOINT = "/competitions/{league}/matches?status=FINISHED"
@@ -138,5 +139,7 @@ with DAG(
         task_id="transform_matches_data", python_callable=transform_matches_data
     )
 
-    retrive_data >> transform_match
     generate_http_operator(transform_match)
+    retrive_data >> transform_match
+
+    create_email_report_task(transform_match)

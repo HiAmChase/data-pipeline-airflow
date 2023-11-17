@@ -11,6 +11,7 @@ from airflow.providers.amazon.aws.hooks.s3 import S3Hook
 
 
 from args import default_args
+from send_email import create_email_report_task
 import config
 
 CITY_NAME = "Hanoi"
@@ -98,3 +99,4 @@ with DAG(
     )
 
     is_weather_api_ready >> extract_weather_data >> transform_load_weather_data
+    create_email_report_task(transform_load_weather_data)
